@@ -1,3 +1,16 @@
 micronaut:
   application:
     name: micronaut
+---
+micronaut:
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: true
+      logout:
+        enabled: true
+    session:
+      enabled: true
+      login-success-target-url: /
+      login-failure-target-url: /login/authFailed
