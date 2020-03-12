@@ -32,6 +32,9 @@ dependencies {
 
     implementation "io.micronaut:micronaut-security-session"
 
+    implementation "io.micronaut:micronaut-views-velocity"
+    runtime "org.apache.velocity:velocity-engine-core:2.0"
+
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
     testAnnotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
