@@ -23,9 +23,6 @@ configurations {
                 if (details.requested.group == 'io.micronaut' && details.requested.module.toString().contains('security')) {
                     details.useVersion micronautSecurityVersion
                 }
-                if (details.requested.group == 'io.micronaut.cache') {
-                    details.useVersion '2.0.0.BUILD-SNAPSHOT'
-                }
             }
         }
     }
@@ -36,6 +33,7 @@ dependencies {
     annotationProcessor "io.micronaut:micronaut-graal"
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut:micronaut-validation"
+    annotationProcessor "io.micronaut:micronaut-security-annotations"
 
     compileOnly enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion")
     compileOnly "org.graalvm.nativeimage:svm"
