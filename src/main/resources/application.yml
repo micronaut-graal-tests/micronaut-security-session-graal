@@ -4,7 +4,7 @@ micronaut:
 ---
 micronaut:
   security:
+    authentication: session 
     redirect:
       login-failure: /login/authFailed
       login-success: /
-    login-handler: session
