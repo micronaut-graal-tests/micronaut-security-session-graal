@@ -1,7 +1,7 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "com.diffplug.eclipse.apt" version "3.22.0"
+    id "com.github.johnrengelman.shadow" version "6.0.0"
     id "application"
-    id "net.ltgt.apt-eclipse" version "0.21"
 }
 
 version "0.1"
@@ -9,63 +9,70 @@ group "example"
 
 repositories {
     mavenCentral()
-    maven { url "https://jcenter.bintray.com" }
+    jcenter()
     maven { url "https://oss.jfrog.org/oss-snapshot-local" }
 }
 
 configurations {
     // for dependencies that are needed for development only
     developmentOnly
-
-    all {
-        resolutionStrategy {
-            eachDependency { DependencyResolveDetails details ->
-                if (details.requested.group == 'io.micronaut' && details.requested.module.toString().contains('security')) {
-                    details.useVersion micronautSecurityVersion
-                }
-            }
-        }
-    }
 }
 
 dependencies {
-    annotationProcessor enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion")
-    annotationProcessor "io.micronaut:micronaut-graal"
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    annotationProcessor "io.micronaut:micronaut-validation"
-    annotationProcessor "io.micronaut:micronaut-security-annotations"
+    annotationProcessor(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
+    annotationProcessor("io.micronaut:micronaut-graal")
+    annotationProcessor("io.micronaut:micronaut-inject-java")
+    annotationProcessor("io.micronaut:micronaut-validation")
+    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
 
-    compileOnly enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion")
-    compileOnly "org.graalvm.nativeimage:svm"
+    implementation(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
+    implementation("io.micronaut:micronaut-inject")
+    implementation("io.micronaut:micronaut-validation")
+    implementation("io.micronaut:micronaut-runtime")
+    implementation("io.micronaut:micronaut-http-server-netty")
+    implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut.security:micronaut-security-session")
+    implementation("io.micronaut.views:micronaut-views-velocity")
 
-    implementation enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion")
-    implementation "io.micronaut:micronaut-http-client"
-    implementation "io.micronaut:micronaut-inject"
-    implementation "io.micronaut:micronaut-validation"
-    implementation "io.micronaut:micronaut-runtime"
-    implementation "io.micronaut:micronaut-http-server-netty"
+    compileOnly(platform("io.micronaut:micronaut-bom:$micronautVersion"))
+    compileOnly("org.graalvm.nativeimage:svm")
 
-    implementation "io.micronaut.cache:micronaut-cache-caffeine"
-    implementation "io.micronaut:micronaut-security-session:$micronautSecurityVersion"
+    runtimeOnly("ch.qos.logback:logback-classic")
 
-    implementation "io.micronaut.views:micronaut-views-velocity"
-    runtime "org.apache.velocity:velocity-engine-core:2.2"
+    testAnnotationProcessor(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
+    testAnnotationProcessor("io.micronaut:micronaut-inject-java")
 
-    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-    testAnnotationProcessor enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion")
-    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
-    testImplementation enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion")
-    testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "io.micronaut.test:micronaut-test-junit5"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    testImplementation(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("io.micronaut.test:micronaut-test-junit5")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
 test.classpath += configurations.developmentOnly
 
 mainClassName = "example.micronaut.Application"
+
 // use JUnit 5 platform
 test {
     useJUnitPlatform()
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion('1.8')
+    targetCompatibility = JavaVersion.toVersion('1.8')
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    options.compilerArgs.addAll([
+        '-parameters',
+        // enables incremental compilation
+        '-Amicronaut.processing.incremental=true',
+        '-Amicronaut.processing.annotations=example.*',
+        "-Amicronaut.processing.group=$project.group",
+        "-Amicronaut.processing.module=$project.name",
+    ])
 }
 
 shadowJar {
@@ -74,9 +81,12 @@ shadowJar {
 
 tasks.withType(JavaExec) {
     classpath += configurations.developmentOnly
-    jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
-}
-tasks.withType(JavaCompile){
-    options.encoding = "UTF-8"
-    options.compilerArgs.add('-parameters')
+    jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+    if (gradle.startParameter.continuous) {
+        systemProperties(
+            'micronaut.io.watch.restart': 'true',
+            'micronaut.io.watch.enabled': 'true',
+            "micronaut.io.watch.paths": "src/main"
+        )
+    }
 }
