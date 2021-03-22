@@ -44,5 +44,4 @@ java {
 
 nativeImage {
     imageName('security-session')
-    args = ["-H:+StaticExecutableWithDynamicLibC"]
 }
