@@ -7,9 +7,9 @@ import io.micronaut.security.authentication.AuthenticationProvider;
 import io.micronaut.security.authentication.AuthenticationRequest;
 import io.micronaut.security.authentication.AuthenticationResponse;
 import io.micronaut.security.authentication.UserDetails;
-import io.reactivex.Flowable;
 import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 
@@ -21,8 +21,8 @@ public class AuthenticationProviderUserPassword implements AuthenticationProvide
         if (authenticationRequest.getIdentity().equals("sherlock") &&
                 authenticationRequest.getSecret().equals("password")) {
             UserDetails userDetails = new UserDetails((String) authenticationRequest.getIdentity(), new ArrayList<>());
-            return Flowable.just(userDetails);
+            return Flux.just(userDetails);
         }
-        return Flowable.just(new AuthenticationFailed());
+        return Flux.just(new AuthenticationFailed());
     }
 }

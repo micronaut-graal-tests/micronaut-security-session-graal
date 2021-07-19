@@ -8,7 +8,6 @@ group = "example.micronaut"
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
 }
 
@@ -29,6 +28,7 @@ dependencies {
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.security:micronaut-security-session")
     implementation("io.micronaut.views:micronaut-views-velocity")
+    implementation("io.micronaut.reactor:micronaut-reactor")
 
     runtimeOnly("ch.qos.logback:logback-classic")
 }
