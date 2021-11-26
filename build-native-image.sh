@@ -1,4 +1,4 @@
 #!/bin/bash
 
-./gradlew nativeImage
-cp build/native-image/security-session .
+./gradlew nativeCompile
+cp build/native/nativeCompile/security-session .
